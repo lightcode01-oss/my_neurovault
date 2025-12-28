@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeuroVault Memory Network</title>
+        <!-- Debugging note: Vite's `base` affects where built assets are referenced.
+          When building, Vite replaces the placeholder `/neurovault/` with the configured base (see vite.config.ts).
+          For GitHub Pages under the `neurovault` repo set `VITE_BASE='/neurovault/'` before building.
+          Example: `VITE_BASE='/neurovault/' npm run build`.
+          During development the dev server uses a relative path so the app loads correctly locally. -->
+    <script type="module" crossorigin src="/neurovault/assets/main-B9JEBBtO.js"></script>
+    <link rel="stylesheet" crossorigin href="/neurovault/assets/main-uFyRsnH9.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- Vite dev: entry point for React app. Vite will replace this with the correct built JS asset in production. -->
+        <!-- Use the BASE_URL placeholder so Vite replaces it at build time. When serving the built
+          site from GitHub Pages or a sub-path, this ensures the assets are requested from the correct base.
+          NOTE: /neurovault/ is replaced by Vite during build (it becomes e.g. '/neurovault/'). -->
+          <!-- VITE DEV ONLY: In development, Vite injects /src/main.tsx as a module. For production, Vite rewrites this to the built JS asset. -->
+          <!-- In production, Vite injects the correct JS asset path. Do NOT reference /src/main.tsx in deployed index.html. -->
+          <!-- The correct script tag will be injected by Vite during build. -->
+          <!-- VITE PROD: Do NOT deploy raw src files. Build with `vite build` and deploy the `dist/` output. Vite will inject the correct JS asset path here. -->
+  </body>
+</html>
+
+<!-- No script block here. Vite injects the correct JS asset during build. -->

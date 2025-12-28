@@ -1,0 +1,41 @@
+Files added or updated for deployment automation (generated 2025-11-23):
+
+- backend/app_run.py  (appended `/health/full` health-check)
+- scripts/release_check.sh  (release verification + smoke tests)
+- scripts/verify_release_artifacts.sh  (download release assets + verify)
+- ops/rollback.md  (rollback procedure for Stylus module)
+- ops/monitoring.md  (monitoring checklist)
+- FINALIZE.md  (appended Deployment Steps section)
+
+Existing files left unchanged or enhanced (do not overwrite):
+- .github/workflows/build_and_release_wasm.yml  (existing)
+- .github/workflows/ci.yml  (existing wasm-verification job present)
+- contracts/stylus/deploy-stylus.ts  (existing, used for dry-run and operator deploy)
+- scripts/verify_wasm_fetch.js  (existing verifier)
+- scripts/call_stylus_ping.js  (existing caller/stub)
+- scripts/fetch_wasm.js  (existing)
+- deploy/config/networks.ts  (existing)
+- infra/indexer.js  (existing; supports --once and --from-block)
+
+Quick commands (testnet then mainnet):
+
+# 1) Verify local wasm & run smoke checks (dry-run)
+./scripts/release_check.sh --dry
+
+# 2) Dry-run deploy to testnet
+npx ts-node contracts/stylus/deploy-stylus.ts --network arbitrumSepolia --wasm-path public/stylus/memory_registry.wasm --dry-run
+
+# 3) Operator deploy to testnet (live)
+# Set DEPLOYER_KEY env var (securely) then run:
+DEPLOYER_KEY="0x..." npx ts-node contracts/stylus/deploy-stylus.ts --network arbitrumSepolia --wasm-path public/stylus/memory_registry.wasm
+
+# 4) Promote to mainnet (manual approval required):
+DEPLOYER_KEY="0x..." npx ts-node contracts/stylus/deploy-stylus.ts --network arbitrumOne --wasm-path public/stylus/memory_registry.wasm
+
+# 5) Verify release artifacts locally (from GitHub release tag):
+./scripts/verify_release_artifacts.sh <owner> <repo> <release-tag>
+
+!!! ACTION REQUIRED (manual steps):
+- GPG sign the wasm artifact and attach the signature to the GitHub Release
+- Use cargo-stylus or official Stylus deploy tooling for production
+- Store STYLUS_MODULE_ID in GitHub Secrets after successful deploy

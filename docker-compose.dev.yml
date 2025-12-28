@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./backend:/app/backend:rw
+      - ./backend/data:/app/backend/data:rw
+    env_file:
+      - .env.local
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src:rw
+      - ./index.html:/app/index.html:ro
+    env_file:
+      - .env.local

@@ -1,0 +1,12 @@
+node_modules
+.venv
+venv
+dist
+build
+__pycache__
+.pytest_cache
+.git
+.DS_Store
+backend/data/*.db
+public/stylus/*.wasm
+target

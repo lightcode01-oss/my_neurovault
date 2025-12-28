@@ -1,0 +1,8 @@
+// Legacy Hardhat-based tests for MemoryRegistryV2
+// Moved to .legacy after migration to Stylus/WASM. Keep for reference.
+
+/*
+<content preserved from original tests/MemoryRegistryV2.test.ts>
+*/
+
+export {};

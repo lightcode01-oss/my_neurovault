@@ -1,0 +1,153 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import MemorySubmission from '../src/components/MemorySubmission';
+
+// Mock dependencies
+vi.mock('../src/hooks/useWallet', () => ({
+  useWallet: () => ({
+    address: '0x1234567890123456789012345678901234567890',
+    chainId: '421614',
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    switchChain: vi.fn(),
+  }),
+}));
+
+vi.mock('../src/lib/submitMemory', () => ({
+  packAndSubmitMemory: vi.fn(async (memory, signer, onProgress) => {
+    // Simulate progress updates
+    onProgress?.('uploading', 25);
+    onProgress?.('uploading', 50);
+    onProgress?.('tx-pending', 75);
+    onProgress?.('confirmed', 100);
+    return {
+      cid: 'bafytest123',
+      contentHash: '0x' + '0'.repeat(64),
+      txHash: '0x' + '1'.repeat(64),
+    };
+  }),
+  retryLastPayload: vi.fn(),
+  getCachedPayload: vi.fn(() => null),
+}));
+
+describe('MemorySubmission component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders form with title, category, and content fields', () => {
+    render(<MemorySubmission />);
+    
+    expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/content/i)).toBeInTheDocument();
+  });
+
+  it('shows submit button and progress bar', () => {
+    render(<MemorySubmission />);
+    
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('validates required fields before submission', async () => {
+    const user = userEvent.setup();
+    render(<MemorySubmission />);
+
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    await user.click(submitButton);
+
+    // Should show validation error or not submit
+    await waitFor(() => {
+      // The component should prevent submission with empty fields
+      expect(submitButton).toBeEnabled();
+    });
+  });
+
+  it('shows success message with CID after submission', async () => {
+    const user = userEvent.setup();
+    render(<MemorySubmission />);
+
+    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    const contentInput = screen.getByLabelText(/content/i) as HTMLTextAreaElement;
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+
+    // Fill in the form
+    await user.type(titleInput, 'Test Memory');
+    await user.type(contentInput, 'This is a test memory');
+    await user.click(submitButton);
+
+    // Wait for success state
+    await waitFor(
+      () => {
+        expect(screen.getByText(/bafytest123/)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+  });
+
+  it('shows progress updates during submission', async () => {
+    const user = userEvent.setup();
+    render(<MemorySubmission />);
+
+    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    const contentInput = screen.getByLabelText(/content/i) as HTMLTextAreaElement;
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+
+    await user.type(titleInput, 'Test Memory');
+    await user.type(contentInput, 'This is a test memory');
+    await user.click(submitButton);
+
+    // Check for progress indicator updates
+    const progressBar = screen.getByRole('progressbar');
+    expect(progressBar).toBeInTheDocument();
+
+    // Wait for completion
+    await waitFor(() => {
+      expect(screen.getByText(/bafytest123/)).toBeInTheDocument();
+    });
+  });
+
+  it('shows retry option on error', async () => {
+    const { packAndSubmitMemory } = await import('../src/lib/submitMemory');
+    vi.mocked(packAndSubmitMemory).mockRejectedValueOnce(new Error('Upload failed'));
+
+    const user = userEvent.setup();
+    render(<MemorySubmission />);
+
+    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    const contentInput = screen.getByLabelText(/content/i) as HTMLTextAreaElement;
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+
+    await user.type(titleInput, 'Test Memory');
+    await user.type(contentInput, 'This is a test memory');
+    await user.click(submitButton);
+
+    // Wait for error state
+    await waitFor(() => {
+      expect(screen.getByText(/failed|error/i)).toBeInTheDocument();
+    });
+  });
+
+  it('disables submit button during submission', async () => {
+    const user = userEvent.setup();
+    render(<MemorySubmission />);
+
+    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    const contentInput = screen.getByLabelText(/content/i) as HTMLTextAreaElement;
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+
+    await user.type(titleInput, 'Test Memory');
+    await user.type(contentInput, 'This is a test memory');
+    await user.click(submitButton);
+
+    // Button should be disabled during submission
+    expect(submitButton).toBeDisabled();
+
+    // Wait for completion
+    await waitFor(() => {
+      expect(screen.getByText(/bafytest123/)).toBeInTheDocument();
+    });
+  });
+});

@@ -1,0 +1,1 @@
+D:\NeuroVault\ Memory\ Network\contracts\stylus\memory_registry\target\wasm32-unknown-unknown\release\memory_registry_stylus.wasm: D:\NeuroVault\ Memory\ Network\contracts\stylus\memory_registry\src\lib.rs

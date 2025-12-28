@@ -1,0 +1,6 @@
+# .gitattributes for GitHub Pages
+# Ensure built assets are treated as binary where needed
+*.js text eol=lf
+*.css text eol=lf
+*.wasm binary
+# You may add more rules as needed for your asset types
